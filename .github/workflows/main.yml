@@ -1,5 +1,5 @@
-name: MAUI Unit Tests
- 
+name: MAUI CI Pipeline
+
 on:
   push:
     branches:
@@ -13,43 +13,48 @@ on:
   pull_request:
     branches:
       - main
-      - feature/UC11
-      - feature/UC13
+      - Develop
+      - Feature/UC11
+      - Feature/UC13
       - Hotfix
       - Release
-      - Develop
- 
+
 jobs:
-  test:
-    runs-on: ubuntu-latest  # Of windows-latest/macOS-latest als specifiek platform nodig is
+  build-and-test:
+    runs-on: windows-latest
+
     steps:
       - name: Haal de repository op
         uses: actions/checkout@v4
- 
+
       - name: Installeer .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'  # Gebruik de juiste versie voor MAUI
- 
+          dotnet-version: '8.0.x'
+
       - name: Installeer MAUI workloads
-        run: dotnet workload install maui-android
- 
+        run: |
+          dotnet workload install maui-android
+          dotnet workload install maui-ios
+          dotnet workload install maui-maccatalyst
+
       - name: Herstel afhankelijkheden
         run: dotnet restore
- 
+
       - name: Bouw de applicatie
         run: dotnet build --configuration Release --no-restore
- 
+
       - name: Voer unit tests uit
-        run: dotnet test --configuration Release --no-restore --no-build --verbosity normal
+        run: dotnet test --configuration Release --no-restore --no-build --logger "trx;LogFileName=testresults.trx"
+
       - name: Upload test resultaten
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: TestResults/testresults.trx
-        
-      - name: Upload test resultaten
+          path: '**/TestResults/*.trx'
+
+      - name: Upload build output
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: TestResults/testresults.trx
+          name: build-output
+          path: '**/bin/Release/**/*'
