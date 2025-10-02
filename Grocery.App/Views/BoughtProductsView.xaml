@@ -6,6 +6,7 @@
              x:Class="Grocery.App.Views.BoughtProductsView"
              x:DataType="vm:BoughtProductsViewModel"
              Title="BoughtProductsView">
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*"/>
