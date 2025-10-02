@@ -37,7 +37,15 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Text="{Binding Name}" Grid.Column="0"/>
+                        <HorizontalStackLayout>
+                            <Label Text="1 "/>
+                            <Label Text="," />
+                            <Label Text="{Binding Name} " />
+                            <Label Text="," />
+                            <Label Text="{Binding NrOfSells} " />
+                            <Label Text="," />
+                            <Label Text="{Binding Stock} " />
+                        </HorizontalStackLayout>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
