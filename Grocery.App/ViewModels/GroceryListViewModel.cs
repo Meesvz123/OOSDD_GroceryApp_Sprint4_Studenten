@@ -33,7 +33,7 @@ namespace Grocery.App.ViewModels
         [RelayCommand]
         public async Task ShowBoughtProducts()
         {
-            if (_global.Client?.Role == Role.Admin)
+            if (_global.Client.Role == Role.Admin)
             {
                 await Shell.Current.GoToAsync($"{nameof(Views.BoughtProductsView)}", true);
             }
