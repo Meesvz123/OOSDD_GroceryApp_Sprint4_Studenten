@@ -1,28 +1,25 @@
-name: MAUI CI Pipeline
+name: MAUI Unit Tests
 
 on:
   push:
     branches:
       - main
       - Develop
-      - Feature/UC11
-      - Feature/UC13
-      - Hotfix
-      - Release
+      - Feature/*
+      - Hotfix/*
+      - Release/*
       - infra/runner-toevoegen
   pull_request:
     branches:
       - main
+      - Feature/*
+      - Hotfix/*
+      - Release/*
       - Develop
-      - Feature/UC11
-      - Feature/UC13
-      - Hotfix
-      - Release
 
 jobs:
-  build-and-test:
-    runs-on: windows-latest
-
+  test:
+    runs-on: ubuntu-latest
     steps:
       - name: Haal de repository op
         uses: actions/checkout@v4
@@ -33,28 +30,19 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Installeer MAUI workloads
-        run: |
-          dotnet workload install maui-android
-          dotnet workload install maui-ios
-          dotnet workload install maui-maccatalyst
+        run: dotnet workload install maui-windows
 
       - name: Herstel afhankelijkheden
         run: dotnet restore
 
       - name: Bouw de applicatie
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build Grocery.App/Grocery.App.csproj --configuration Release --no-restore --framework net8.0-windows /p:ApplicationId=nl.windesheim.groceryapp
 
-      - name: Voer unit tests uit
-        run: dotnet test --configuration Release --no-restore --no-build --logger "trx;LogFileName=testresults.trx"
+      - name: Voer unit tests uit en genereer rapport
+        run: dotnet test --configuration Release --verbosity normal --results-directory "TestResults" --logger "trx;LogFileName=testresults.trx"
 
       - name: Upload test resultaten
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: '**/TestResults/*.trx'
-
-      - name: Upload build output
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: '**/bin/Release/**/*'
+          path: TestResults/testresults.trx
