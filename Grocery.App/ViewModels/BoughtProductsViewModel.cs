@@ -4,7 +4,6 @@ using Grocery.Core.Interfaces.Services;
 using Grocery.Core.Models;
 using System.Collections.ObjectModel;
 
-
 namespace Grocery.App.ViewModels
 {
     public partial class BoughtProductsViewModel : BaseViewModel
@@ -12,19 +11,29 @@ namespace Grocery.App.ViewModels
         private readonly IBoughtProductsService _boughtProductsService;
 
         [ObservableProperty]
-        Product selectedProduct;
-        public ObservableCollection<BoughtProducts> BoughtProductsList { get; set; } = [];
-        public ObservableCollection<Product> Products { get; set; }
+        private Product selectedProduct;
 
-        public BoughtProductsViewModel(IBoughtProductsService boughtProductsService, IProductService productService)
+        public ObservableCollection<BoughtProducts> BoughtProductsList { get; set; } = new();
+
+        public ObservableCollection<Product> Products { get; set; } = new();
+
+        public BoughtProductsViewModel(IBoughtProductsService boughtProductsService)
         {
             _boughtProductsService = boughtProductsService;
-            Products = new(productService.GetAll());
         }
 
-        partial void OnSelectedProductChanged(Product? oldValue, Product newValue)
+        partial void OnSelectedProductChanged(Product product)
         {
-            //Zorg dat de lijst BoughtProductsList met de gegevens die passen bij het geselecteerde product. 
+            if (product == null)
+                return;
+
+            var items = _boughtProductsService.Get(product.Id);
+            BoughtProductsList.Clear();
+
+            foreach (var item in items)
+            {
+                BoughtProductsList.Add(item);
+            }
         }
 
         [RelayCommand]
